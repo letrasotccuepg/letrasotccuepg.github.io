@@ -1,0 +1,182 @@
+window.EXTEMPORANEAS_DATA = [
+  {
+    "id": 1,
+    "ord": 12,
+    "data": "2026-11-09",
+    "data_br": "09/11/2026",
+    "dia": "Segunda-feira",
+    "dia_curto": "Segunda",
+    "horario": "17:20",
+    "sala": "B207",
+    "area": "LINGUÍSTICA",
+    "aluno": "Jennifer Yasmin Penteado",
+    "titulo": "DA PRÁXIS À TEORIA: UM OLHAR PARA O GESTO E A EXPRESSÃO CORPORAL COMO RECURSOS MULTIMODAIS NO ENSINO DE INGLÊS PARA A EDUCAÇÃO INFANTIL",
+    "orientador": "Isabel Cristina Vollet Marson",
+    "coorientador": "",
+    "membros": [
+      "Sulany Silveira dos Santos",
+      "Audrey Pietrobelli de Souza"
+    ],
+    "hibrida": false
+  },
+  {
+    "id": 2,
+    "ord": 20,
+    "data": "2026-11-09",
+    "data_br": "09/11/2026",
+    "dia": "Segunda-feira",
+    "dia_curto": "Segunda",
+    "horario": "19:00",
+    "sala": "B203",
+    "area": "LIBRAS",
+    "aluno": "Victor Henrique Danilenko",
+    "titulo": "O ensino de libras como L2 para estudantes ouvintes.",
+    "orientador": "Vinícius Heitor Pereira",
+    "coorientador": "",
+    "membros": [
+      "Andressa França",
+      "Izabele Caroline Rodrigues Gomes"
+    ],
+    "hibrida": false
+  },
+  {
+    "id": 3,
+    "ord": 102,
+    "data": "2026-11-10",
+    "data_br": "10/11/2026",
+    "dia": "Terça-feira",
+    "dia_curto": "Terça",
+    "horario": "17:20",
+    "sala": "B210",
+    "area": "LINGUÍSTICA",
+    "aluno": "Mariana Troyner",
+    "titulo": "Título a ser definido",
+    "orientador": "Sulany Silveira do Santos",
+    "coorientador": "",
+    "membros": [
+      "Isabel Cristina Vollet Marson",
+      "Fabiana Simeoni Avais"
+    ],
+    "hibrida": false
+  },
+  {
+    "id": 4,
+    "ord": 14,
+    "data": "2026-11-11",
+    "data_br": "11/11/2026",
+    "dia": "Quarta-feira",
+    "dia_curto": "Quarta",
+    "horario": "14:30",
+    "sala": "B202",
+    "area": "LITERATURA",
+    "aluno": "Lohan Vinícius de Oliveira",
+    "titulo": "A POEIRA NO RAIO DE SOL: LUCRÉCIO E A LONGA DURAÇÃO DO ATOMISMO",
+    "orientador": "Daniel van der Broocke de Oliveira Gomes",
+    "coorientador": "",
+    "membros": [
+      "Jane Kelly de Oliveira",
+      "Eduardo Reis de Mello"
+    ],
+    "hibrida": false
+  },
+  {
+    "id": 5,
+    "ord": 46,
+    "data": "2026-11-11",
+    "data_br": "11/11/2026",
+    "dia": "Quarta-feira",
+    "dia_curto": "Quarta",
+    "horario": "17:20",
+    "sala": "B210",
+    "area": "LINGUÍSTICA",
+    "aluno": "Letícia Ajuz",
+    "titulo": "Storyline The Farm: Uma proposta para o ensino de inglês no Ensino Fundamental",
+    "orientador": "Sulany Silveira do Santos",
+    "coorientador": "",
+    "membros": [
+      "Isabel Marson",
+      "Yohana Bonfim"
+    ],
+    "hibrida": true
+  },
+  {
+    "id": 6,
+    "ord": 56,
+    "data": "2026-11-12",
+    "data_br": "12/11/2026",
+    "dia": "Quinta-feira",
+    "dia_curto": "Quinta",
+    "horario": "17:20",
+    "sala": "B202",
+    "area": "LINGUÍSTICA",
+    "aluno": "Giulliana Pinheiro",
+    "titulo": "SMALL WONDERS: MATERIAL DIDÁTICO PARA O ENSINO BILÍNGUE DE CRIANÇAS DE 6 A 7 ANOS BASEADO NA ABORDAGEM COMMUNICATIVE LANGUAGE TEACHING",
+    "orientador": "Patricia Barreto Mainardi Maeso",
+    "coorientador": "",
+    "membros": [
+      "Isabel Cristina Vollet Marson",
+      "Deborah Scheidt"
+    ],
+    "hibrida": true
+  },
+  {
+    "id": 7,
+    "ord": 43,
+    "data": "2026-11-13",
+    "data_br": "13/11/2026",
+    "dia": "Sexta-feira",
+    "dia_curto": "Sexta",
+    "horario": "17:20",
+    "sala": "B207",
+    "area": "LITERATURA",
+    "aluno": "Izabelli Domingues Ribeiro",
+    "titulo": "Entre mães, filhas e palavras: maternidade e escrita em A filha primitiva, de Vanessa Passos",
+    "orientador": "Daiane Cristina Pereira",
+    "coorientador": "",
+    "membros": [
+      "Giuliano Lellis Ito Santos",
+      "Patricia Barreto Mainardi Maeso"
+    ],
+    "hibrida": false
+  },
+  {
+    "id": 8,
+    "ord": 15,
+    "data": "2026-11-20",
+    "data_br": "20/11/2026",
+    "dia": "Sexta-feira",
+    "dia_curto": "Sexta",
+    "horario": "17:20",
+    "sala": "B208",
+    "area": "LINGUÍSTICA",
+    "aluno": "Estela Martins Eidam",
+    "titulo": "A Permanência do Espanhol na Escola: Entre a Disputa Política e a Identidade Latino-Americana",
+    "orientador": "Valeska Gracioso Carlos",
+    "coorientador": "",
+    "membros": [
+      "Lucimar Araujo Braga",
+      "Marina Zavadzki"
+    ],
+    "hibrida": false
+  },
+  {
+    "id": 9,
+    "ord": 55,
+    "data": "2026-11-20",
+    "data_br": "20/11/2026",
+    "dia": "Sexta-feira",
+    "dia_curto": "Sexta",
+    "horario": "17:20",
+    "sala": "B210",
+    "area": "LITERATURA",
+    "aluno": "Jackson Yuri Machado de Paula",
+    "titulo": "O erotismo como estrutura literária em A fúria do corpo, de João  Gilberto Noll",
+    "orientador": "Eunice de Morais",
+    "coorientador": "",
+    "membros": [
+      "Leonardo S. Carrera Guisantes",
+      "Fatima Maria Aparecida Ruvinski Kusma"
+    ],
+    "hibrida": true
+  }
+];

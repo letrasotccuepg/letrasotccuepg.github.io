@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DEFESAS DE TCC - 2026 • LETRAS UEPG</title>
+  <title>DEFESAS EXTEMPORÂNEAS DE TCC - 2026 • LETRAS UEPG</title>
   <meta name="description"
-    content="Portal de consulta de bancas, horários e salas das defesas de TCC 2026 do Departamento de Estudos da Linguagem (DELEM) da UEPG.">
+    content="Portal de consulta das bancas extemporâneas, horários e salas das defesas de TCC 2026 do Departamento de Estudos da Linguagem (DELEM) da UEPG.">
   <meta name="theme-color" content="#0f2b48">
 
   <!-- Google Fonts -->
@@ -27,10 +27,24 @@
         <div class="brand-badge">UEPG</div>
         <div class="brand-text">
           <span class="univ-name">Universidade Estadual de Ponta Grossa</span>
-          <span class="dept-name">LETRAS/UEPG • Defesas de TCC - 2026</span>
+          <span class="dept-name">LETRAS/UEPG • Defesas Extemporâneas 2026</span>
         </div>
       </div>
       <div class="nav-actions">
+        <a href="./regulares/index.html" class="btn-portal-link" title="Acessar cronograma das defesas regulares de outubro/2026">
+          <span>Bancas Regulares</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+        <a href="Cronograma_TCC_EXTEMPORANEAS_2026.pdf" download class="btn-secondary" title="Baixar PDF do Cronograma Extemporâneo">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>PDF Oficial</span>
+        </a>
         <button id="themeToggle" class="btn-icon" title="Alternar tema claro/escuro" aria-label="Alternar tema">
           <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
             stroke-width="2">
@@ -58,102 +72,63 @@
   <!-- Hero Section & Stats -->
   <main class="main-content">
     <section class="hero-section">
-      <div class="hero-tag">Cronograma Oficial de Apresentações</div>
-      <h1 class="hero-title">Defesas de Trabalho de Conclusão de Curso</h1>
-      <p class="hero-desc">Consulte horários, salas, bancas examinadoras e orientadores dos turnos Vespertino e Noturno.
+      <div class="hero-tag">Calendário Especial • Novembro de 2026</div>
+      <h1 class="hero-title">Defesas de TCC Extemporâneas</h1>
+      <p class="hero-desc">Consulte horários, salas, modalidades e bancas examinadoras das apresentações extemporâneas do Departamento de Estudos da Linguagem (DELEM / UEPG).
       </p>
+
+      <div class="banner-highlight">
+        <span>📅 Procurando o cronograma geral das defesas regulares de outubro/2026?</span>
+        <a href="./regulares/index.html" class="banner-link">Acessar Portal das Bancas Regulares (Vespertino e Noturno) →</a>
+      </div>
 
       <!-- Métricas em destaque -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-value" id="statTotalBancas">--</div>
-          <div class="stat-label">Bancas Totais</div>
+          <div class="stat-value">9</div>
+          <div class="stat-label">Bancas Extemporâneas</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="statVespBancas">--</div>
-          <div class="stat-label">Vespertino (Seg/Ter)</div>
+          <div class="stat-value">09 a 20</div>
+          <div class="stat-label">Novembro / 2026</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="statNotBancas">--</div>
-          <div class="stat-label">Noturno (Seg/Sex)</div>
+          <div class="stat-value">5 Salas</div>
+          <div class="stat-label">Bloco B • Campus Central</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="statProfs">--</div>
-          <div class="stat-label">Docentes Envolvidos</div>
+          <div class="stat-value">Presencial / Híbrida</div>
+          <div class="stat-label">Modalidades Atendidas</div>
         </div>
       </div>
     </section>
 
-    <!-- Controles de Visualização e Busca -->
+    <!-- Controles de Busca e Filtros por Dia -->
     <section class="controls-panel">
-      <!-- Seletor de Modo de Visualização -->
-      <div class="view-tabs" role="tablist">
-        <button class="tab-btn active" data-view="cards" id="tabCards" role="tab" aria-selected="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" />
-            <rect x="14" y="3" width="7" height="7" />
-            <rect x="14" y="14" width="7" height="7" />
-            <rect x="3" y="14" width="7" height="7" />
-          </svg>
-          <span>Todas as Bancas</span>
-        </button>
-        <button class="tab-btn" data-view="professor" id="tabProfessor" role="tab" aria-selected="false">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <span>Por Professor</span>
-        </button>
-        <button class="tab-btn" data-view="salas" id="tabSalas" role="tab" aria-selected="false">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-            <line x1="10" y1="4" x2="10" y2="20" />
-          </svg>
-          <span>Grade de Salas</span>
-        </button>
-      </div>
-
-      <!-- Barra de Busca -->
+      <!-- Barra de Busca Rápida -->
       <div class="search-box">
         <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
           stroke-width="2">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input type="text" id="searchInput" placeholder="Buscar por aluno, orientador, membro, título, sala..."
+        <input type="text" id="searchInput" placeholder="Filtrar por aluno, orientador, avaliador, título, sala..."
           autocomplete="off">
         <button id="clearSearch" class="btn-clear" title="Limpar busca" style="display: none;">&times;</button>
       </div>
 
-      <!-- Filtros Rápidos (Chips) -->
+      <!-- Filtro Rápido por Dia (Chips) -->
       <div class="filter-row">
         <div class="filter-group">
-          <span class="filter-title">Dia:</span>
+          <span class="filter-title">Filtrar por Data:</span>
           <div class="chip-container" id="dayFilter">
-            <button class="chip active" data-filter="dia" data-value="all">Todos</button>
-            <button class="chip" data-filter="dia" data-value="Segunda">Segunda</button>
-            <button class="chip" data-filter="dia" data-value="Terça">Terça</button>
-            <button class="chip" data-filter="dia" data-value="Sexta">Sexta</button>
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <span class="filter-title">Turno:</span>
-          <div class="chip-container" id="turnoFilter">
-            <button class="chip active" data-filter="turno" data-value="all">Todos</button>
-            <button class="chip" data-filter="turno" data-value="VESPERTINO">Vespertino</button>
-            <button class="chip" data-filter="turno" data-value="NOTURNO">Noturno</button>
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <span class="filter-title">Área:</span>
-          <div class="chip-container" id="areaFilter">
-            <button class="chip active" data-filter="area" data-value="all">Todas</button>
-            <button class="chip" data-filter="area" data-value="LITERATURA">Literatura</button>
-            <button class="chip" data-filter="area" data-value="LINGUÍSTICA">Linguística</button>
-            <button class="chip" data-filter="area" data-value="LIBRAS">Libras</button>
+            <button class="chip active" data-filter="dia" data-value="all">Todas as Bancas (9)</button>
+            <button class="chip" data-filter="dia" data-value="2026-11-09">Seg 09/11</button>
+            <button class="chip" data-filter="dia" data-value="2026-11-10">Ter 10/11</button>
+            <button class="chip" data-filter="dia" data-value="2026-11-11">Qua 11/11</button>
+            <button class="chip" data-filter="dia" data-value="2026-11-12">Qui 12/11</button>
+            <button class="chip" data-filter="dia" data-value="2026-11-13">Sex 13/11</button>
+            <button class="chip" data-filter="dia" data-value="2026-11-20">Sex 20/11</button>
           </div>
         </div>
       </div>
@@ -161,55 +136,14 @@
 
     <!-- Indicador de Resultados -->
     <div class="results-bar">
-      <span id="resultsCount">Carregando bancas...</span>
+      <span id="resultsCount">Carregando bancas extemporâneas...</span>
       <button id="resetFilters" class="btn-text" style="display: none;">Limpar filtros</button>
     </div>
 
-    <!-- VIEW 1: Cards Grid -->
-    <section id="viewCards" class="view-panel active">
-      <div class="cards-grid" id="bancasContainer">
-        <!-- Renderizado dinamicamente via app.js -->
-      </div>
-    </section>
-
-    <!-- VIEW 2: Por Professor -->
-    <section id="viewProfessor" class="view-panel">
-      <div class="professor-selector-card">
-        <label for="profSelect" class="form-label">Selecione o Docente para ver sua agenda completa:</label>
-        <div class="select-wrapper">
-          <select id="profSelect">
-            <option value="">-- Escolha um Professor --</option>
-          </select>
-        </div>
-        <div id="profSummary" class="prof-summary" style="display: none;">
-          <!-- Resumo do professor -->
-        </div>
-      </div>
-      <div id="profBancasContainer" class="cards-grid">
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-          <h3>Selecione um professor acima</h3>
-          <p>Você verá a linha do tempo com todas as bancas em que ele atua como orientador ou membro.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIEW 3: Grade de Salas -->
-    <section id="viewSalas" class="view-panel">
-      <div class="salas-day-selector">
-        <button class="day-tab-btn active" data-salas-day="Segunda">Segunda-feira</button>
-        <button class="day-tab-btn" data-salas-day="Terça">Terça-feira (Vesp)</button>
-        <button class="day-tab-btn" data-salas-day="Sexta">Sexta-feira (Not)</button>
-      </div>
-      <div class="table-responsive">
-        <table class="grid-table" id="salasGridTable">
-          <!-- Renderizado via app.js -->
-        </table>
-      </div>
-    </section>
+    <!-- Lista de Bancas Agrupadas por Data -->
+    <div id="bancasContainer">
+      <!-- Renderizado dinamicamente via extemporaneas_app.js -->
+    </div>
 
     <!-- Toast Notification -->
     <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
@@ -221,24 +155,25 @@
       <div class="footer-info">
         <h3>Universidade Estadual de Ponta Grossa</h3>
         <p>Setor de Ciências Humanas, Letras e Artes (SECHLA) • Bloco B • Campus Central</p>
-        <p class="footer-small">Horários: Vespertino (13h50 - 17h20) | Noturno (18h50 - 22h15)</p>
+        <p class="footer-small">Bancas Extemporâneas de TCC • Período: 09/11 a 20/11/2026</p>
       </div>
       <div class="footer-downloads">
         <span class="download-title">Arquivos Oficiais:</span>
         <div class="download-links">
-          <a href="Relatorio_TCC_VESPERTINO_2026.pdf" download class="file-link">📄 Relatório Vespertino (.PDF)</a>
-          <a href="Relatorio_TCC_NOTURNO_2026.pdf" download class="file-link">📄 Relatório Noturno (.PDF)</a>
+          <a href="Cronograma_TCC_EXTEMPORANEAS_2026.pdf" download class="file-link">📄 Cronograma Extemporâneas (.PDF)</a>
+          <a href="Relatorio_EXTEMPORANEAS.docx" download class="file-link">📄 Relatório Extemporâneas (.DOCX)</a>
+          <a href="./regulares/index.html" class="file-link">🏛️ Portal de Bancas Regulares (Vesp / Not)</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>Desenvolvido para as Defesas de TCC UEPG 2026 • Sincronizado automaticamente</p>
+      <p>Desenvolvido para as Defesas de TCC UEPG 2026 • Departamento de Estudos da Linguagem</p>
     </div>
   </footer>
 
   <!-- Carregamento dos dados -->
-  <script src="bancas_data.js"></script>
-  <script src="app.js"></script>
+  <script src="extemporaneas_data.js"></script>
+  <script src="extemporaneas_app.js"></script>
 </body>
 
 </html>

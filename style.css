@@ -1059,4 +1059,133 @@ body {
   .univ-name {
     display: none;
   }
+
+  .btn-portal-link span {
+    display: none;
+  }
+
+  .btn-portal-link {
+    padding: 0.5rem;
+  }
+}
+
+/* ==========================================================================
+   Extemporâneas & Portal Navigation Components
+   ========================================================================== */
+.btn-portal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  background-color: var(--uepg-gold-light);
+  color: var(--uepg-gold-text);
+  border: 1px solid var(--uepg-gold);
+  border-radius: var(--radius-full);
+  font-size: 0.825rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.btn-portal-link:hover {
+  background-color: var(--uepg-gold);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .btn-portal-link {
+  background-color: rgba(217, 119, 6, 0.15);
+  color: #fcd34d;
+  border-color: rgba(217, 119, 6, 0.4);
+}
+
+[data-theme="dark"] .btn-portal-link:hover {
+  background-color: #d97706;
+  color: #ffffff;
+}
+
+.banner-highlight {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.65rem 1.25rem;
+  background-color: rgba(30, 58, 138, 0.06);
+  border: 1px dashed var(--uepg-blue-accent);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--text-main);
+  max-width: 800px;
+}
+
+[data-theme="dark"] .banner-highlight {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.banner-link {
+  color: var(--uepg-blue-accent);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1.5px solid currentColor;
+  transition: var(--transition);
+}
+
+.banner-link:hover {
+  opacity: 0.85;
+  transform: translateX(2px);
+}
+
+/* Date Grouping for Extemporâneas */
+.date-group-section {
+  margin-bottom: 2.25rem;
+}
+
+.date-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--uepg-blue-accent);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.15rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.date-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.date-badge-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  border-radius: var(--radius-full);
+}
+
+.tag-presencial {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+[data-theme="dark"] .tag-presencial {
+  background: #052e16;
+  color: #86efac;
+  border: 1px solid #14532d;
 }

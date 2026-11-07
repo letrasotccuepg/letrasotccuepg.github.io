@@ -75,7 +75,7 @@ window.EXTEMPORANEAS_DATA = [
     "coorientador": "",
     "membros": [
       "Jane Kelly de Oliveira",
-      "Eduardo Reis de Mello"
+      "Vinícius Heitor Pereira"
     ],
     "hibrida": false
   },

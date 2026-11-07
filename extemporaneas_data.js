@@ -97,7 +97,7 @@ window.EXTEMPORANEAS_DATA = [
       "Isabel Marson",
       "Yohana Bonfim"
     ],
-    "hibrida": true
+    "hibrida": false
   },
   {
     "id": 6,

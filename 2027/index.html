@@ -1,1 +1,914 @@
-inicial
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapeamento de Orientações — DEEL 2027</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PapaParse para leitura direta do CSV do Google Sheets -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Merriweather', 'serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f4f7fb',
+              100: '#e5ecf5',
+              200: '#c7d8ea',
+              300: '#97b7d8',
+              400: '#6090c1',
+              500: '#3b71aa',
+              600: '#2b578d',
+              700: '#244672',
+              800: '#213c5f',
+              900: '#203450',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+
+    /* Estilos de Impressão / PDF */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .print-break-inside {
+        break-inside: avoid;
+      }
+
+      .shadow-sm,
+      .shadow,
+      .shadow-md,
+      .shadow-lg {
+        box-shadow: none !important;
+      }
+
+      .border {
+        border-color: #cbd5e1 !important;
+      }
+
+      #cardsContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+      }
+    }
+
+    /* Animação suave */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-200 selection:text-brand-900">
+
+  <!-- Cabeçalho Institucional -->
+  <header class="bg-brand-900 text-white border-b border-brand-800 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-800/80 border border-brand-700 text-brand-100 text-xs font-medium tracking-wide uppercase mb-3">
+            <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+            Departamento de Estudos da Linguagem (DEEL)
+          </div>
+          <h1 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Mapeamento de Orientações — 2027
+          </h1>
+          <p class="mt-1.5 text-brand-200 text-sm sm:text-base max-w-2xl">
+            Consulta de disponibilidade de vagas, áreas de pesquisa e temáticas prioritárias dos docentes para
+            orientação acadêmica.
+          </p>
+        </div>
+
+        <!-- Ações e Status -->
+        <div class="flex flex-wrap items-center gap-2.5 no-print">
+          <!-- Status da Sincronização -->
+          <div id="syncBadge"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-800/90 border border-brand-700 text-xs text-brand-100">
+            <span id="syncDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="syncText">Conectando à planilha...</span>
+          </div>
+
+          <button onclick="fetchSheetData(true)" title="Recarregar dados da planilha agora"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand-800 hover:bg-brand-700 text-white text-xs sm:text-sm font-medium border border-brand-700 transition cursor-pointer">
+            <i data-lucide="refresh-cw" id="refreshIcon" class="w-4 h-4"></i>
+            <span>Atualizar</span>
+          </button>
+
+          <button onclick="openOrientandosModal()"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand-800 hover:bg-brand-700 text-white text-xs sm:text-sm font-medium border border-brand-700 transition cursor-pointer">
+            <i data-lucide="users" class="w-4 h-4 text-brand-300"></i>
+            <span>Orientandos Vinculados</span>
+            <span id="badgeOrientandosCount"
+              class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-brand-600 text-white font-semibold">0</span>
+          </button>
+
+          <button onclick="window.print()"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-brand-50 text-brand-900 text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Imprimir / PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner de Aviso (exibido apenas se houver fallback offline) -->
+  <div id="fallbackBanner"
+    class="hidden bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs sm:text-sm no-print">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
+        <span>Não foi possível ler a planilha online neste momento (verifique a conexão ou publique no GitHub Pages).
+          Exibindo dados de backup locais.</span>
+      </div>
+      <button onclick="fetchSheetData(true)"
+        class="underline font-semibold hover:text-amber-700 shrink-0 cursor-pointer">Tentar novamente</button>
+    </div>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Cards de Indicadores (KPIs) -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Docentes</span>
+          <div class="p-2 bg-brand-50 text-brand-700 rounded-lg">
+            <i data-lucide="user-check" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiTotalDocs" class="text-2xl sm:text-3xl font-bold text-slate-900">—</span>
+          <span class="text-xs text-slate-500">cadastrados</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Vagas Totais</span>
+          <div class="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
+            <i data-lucide="bookmark-check" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiTotalVagas" class="text-2xl sm:text-3xl font-bold text-emerald-700">—</span>
+          <span class="text-xs text-slate-500">disponíveis para 2027</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Com Vínculo Atual</span>
+          <div class="p-2 bg-amber-50 text-amber-700 rounded-lg">
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiComOrientando" class="text-2xl sm:text-3xl font-bold text-slate-900">—</span>
+          <span class="text-xs text-slate-500">já possuem orientando</span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Filtro Atual</span>
+          <div class="p-2 bg-indigo-50 text-indigo-700 rounded-lg">
+            <i data-lucide="filter" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <span id="kpiFilteredVagas" class="text-2xl sm:text-3xl font-bold text-indigo-700">—</span>
+          <span id="kpiFilteredDocs" class="text-xs text-slate-500">em 0 docentes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de Filtros e Controles -->
+    <section class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm mb-6 no-print">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+        <!-- Busca Textual -->
+        <div class="md:col-span-5 relative">
+          <label for="searchInput" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+            Buscar docente, tema ou palavra-chave
+          </label>
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="searchInput" placeholder="Ex: Bakhtin, Libras, decolonialidade, Calvino..."
+              class="w-full pl-10 pr-8 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition" />
+            <button id="clearSearchBtn" onclick="clearSearch()"
+              class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por Grande Área -->
+        <div class="md:col-span-4">
+          <label for="areaSelect" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+            Filtrar por Área de Interesse
+          </label>
+          <select id="areaSelect"
+            class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition">
+            <option value="ALL">Todas as áreas</option>
+            <option value="Linguística">Linguística (Geral / Teórica)</option>
+            <option value="Linguística Aplicada">Linguística Aplicada</option>
+            <option value="Ensino de Língua e Literatura">Ensino de Língua e Literatura</option>
+            <option value="Literatura Brasileira">Literatura Brasileira</option>
+            <option value="Literatura Estrangeira">Literatura Estrangeira / Comparada</option>
+            <option value="Libras">Libras / Língua de Sinais / Surdidade</option>
+            <option value="Escrita, texto, discurso">Escrita, Texto e Discurso</option>
+            <option value="Indígena">Língua e Cultura Indígena</option>
+            <option value="Feminista">Estudos de Gênero / Crítica Feminista</option>
+          </select>
+        </div>
+
+        <!-- Filtro de Vínculo e Alternância de Visualização -->
+        <div class="md:col-span-3 flex flex-col justify-between">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+            Vínculo & Exibição
+          </label>
+          <div class="flex items-center gap-2">
+            <select id="vinculoSelect"
+              class="flex-1 px-2.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+              <option value="ALL">Todos</option>
+              <option value="SEM">Sem orientando</option>
+              <option value="COM">Já orienta</option>
+            </select>
+
+            <!-- Botões Cartões vs Tabela -->
+            <div class="inline-flex rounded-lg border border-slate-300 bg-slate-50 p-0.5 shrink-0">
+              <button id="btnViewCards" onclick="setViewMode('cards')" title="Visualização em Cartões"
+                class="p-1.5 rounded-md bg-white text-brand-800 shadow-sm transition cursor-pointer">
+                <i data-lucide="layout-grid" class="w-4 h-4"></i>
+              </button>
+              <button id="btnViewTable" onclick="setViewMode('table')" title="Visualização em Tabela"
+                class="p-1.5 rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer">
+                <i data-lucide="table" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chips Rápidos de Temas Populares -->
+      <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
+        <span class="text-xs font-medium text-slate-400 mr-1">Atalhos:</span>
+        <button onclick="quickFilter('Libras')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Libras
+          & Surdidade</button>
+        <button onclick="quickFilter('Decolonial')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Decolonialidade</button>
+        <button onclick="quickFilter('Gramática')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Gramática</button>
+        <button onclick="quickFilter('Indígena')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Contextos
+          Indígenas</button>
+        <button onclick="quickFilter('Inglês')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Língua
+          Inglesa</button>
+        <button onclick="quickFilter('Espanhol')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Língua
+          Espanhola</button>
+        <button onclick="quickFilter('Feminista')"
+          class="px-2.5 py-1 text-xs rounded-full bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-slate-600 transition cursor-pointer">Estudos
+          de Gênero</button>
+        <button onclick="resetAllFilters()"
+          class="ml-auto text-xs font-medium text-brand-700 hover:text-brand-900 underline cursor-pointer">Limpar
+          filtros</button>
+      </div>
+    </section>
+
+    <!-- Estado de Carregamento Inicial -->
+    <div id="loadingState" class="py-16 text-center">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-100 text-brand-700 mb-3">
+        <i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i>
+      </div>
+      <h3 class="text-base font-semibold text-slate-800">Carregando dados da planilha...</h3>
+      <p class="text-sm text-slate-500 mt-1">Sincronizando respostas dos docentes do DEEL.</p>
+    </div>
+
+    <!-- Container de Resultados: Modo Cartões -->
+    <section id="cardsContainer" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Preenchido via JS -->
+    </section>
+
+    <!-- Container de Resultados: Modo Tabela -->
+    <section id="tableContainer" class="hidden bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr
+              class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <th class="py-3.5 px-4">Docente</th>
+              <th class="py-3.5 px-4 text-center">Vagas</th>
+              <th class="py-3.5 px-4">Áreas de Interesse</th>
+              <th class="py-3.5 px-4">Subtemas / Especificidades</th>
+              <th class="py-3.5 px-4">Vínculo 2027</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200 text-sm">
+            <!-- Preenchido via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Estado Vazio (Nenhum resultado encontrado) -->
+    <div id="emptyState" class="hidden bg-white rounded-xl border border-slate-200 p-12 text-center">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
+        <i data-lucide="search-x" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-semibold text-slate-800">Nenhum docente encontrado</h3>
+      <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+        Não encontramos correspondências para os filtros selecionados. Tente buscar por termos mais amplos ou limpe os
+        filtros atuais.
+      </p>
+      <button onclick="resetAllFilters()"
+        class="mt-4 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white text-sm font-medium rounded-lg transition cursor-pointer">
+        Mostrar todos os docentes
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+    <div
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>Departamento de Estudos da Linguagem (DEEL) — Planejamento de Orientações 2027</span>
+      <span id="footerSourceInfo">Sincronizado automaticamente com Google Planilhas</span>
+    </div>
+  </footer>
+
+  <!-- Modal: Orientandos Já Vinculados -->
+  <div id="orientandosModal"
+    class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-xl border border-slate-200 overflow-hidden fade-in">
+      <div class="px-6 py-4 bg-brand-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="users" class="w-5 h-5 text-brand-300"></i>
+          <h2 class="font-serif text-lg font-bold">Docentes com Orientandos Já Definidos</h2>
+        </div>
+        <button onclick="closeOrientandosModal()"
+          class="text-brand-200 hover:text-white p-1 rounded-lg transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <p class="text-sm text-slate-600 mb-4">
+          Abaixo estão listados os docentes que informaram já possuir orientando(s) vinculado(s) para 2027, juntamente
+          com as vagas adicionais que ainda disponibilizam:
+        </p>
+        <div id="orientandosModalList" class="space-y-3">
+          <!-- Preenchido via JS -->
+        </div>
+      </div>
+      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="closeOrientandosModal()"
+          class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg transition cursor-pointer">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURAÇÃO DA PLANILHA GOOGLE (CSV PUBLICADO)
+    // Colunas esperadas:
+    // DATA, EMAIL, PROFESSOR, DPTO, TEM_ORIENTANDO, ORIETANDOS,
+    // PRECISA_ORIENTANDOS, AREAS_INTERESSE, VAGAS, SUBTEMAS
+    // =========================================================================
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-fPGUemHbIbJf_MzaY-rjcpTvbT0WoDGnPqpvRP5uKCIOngoXL4O5rxT18v6pCPZppRNj0pGS4n5M/pub?output=csv";
+
+    // Dados de backup caso o navegador esteja offline ou bloqueie CORS local (file://)
+    const FALLBACK_DATA = [
+      { professor: "Alice Eulália de Oliveira Lima", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Ensino de Lingua e Literatura, Líbras, língua de sinais, surdidade", vagas: 2, subtemas: "" },
+      { professor: "Álvaro Kasuaki Fujihara", dpto: "DEEL", temOrientando: true, orientandos: "Eduarda Schoembacler", precisa: "Sim", areas: "Linguistica", vagas: 1, subtemas: "Pragmática; teoria e análise linguística; ensino de gramática; tradução; semântica" },
+      { professor: "Anderson Lucas da Silva Macedo", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguistica, Linguística Aplicada, Língua e Sociedade", vagas: 2, subtemas: "Sociolinguística; Variação e mudança; bilinguismo; multilinguismo; línguas em contato; identidade linguística; políticas linguísticas; etnicidade linguística; branding linguístico; língua e sociedade; atitudes; ideologias; norma linguística." },
+      { professor: "Bhianca Moro", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguística Aplicada, Lingua Estrangeira e Literaturas, Ensino de Lingua e Literatura", vagas: 1, subtemas: "Ensino-Aprendizagem de Língua Inglesa. Formação de professores de língua inglesa." },
+      { professor: "Bianca de Campos", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguística Aplicada, Ensino de Lingua e Literatura", vagas: 2, subtemas: "Priorizo temas em Linguística Aplicada Crítica/Decolonial, com foco em: (i) diversidade cultural e identidade (comunidades quilombolas, indígenas, imigrantes); (ii) relações étnico-raciais e linguagem; (iii) ensino de línguas e formação de professores (translinguagem, letramento crítico). Também acolho temas aproximados como políticas linguísticas, EJA e português como língua de acolhimento." },
+      { professor: "Carlos André Ferreira", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Brasileira, Ensino de Lingua e Literatura", vagas: 2, subtemas: "Literatura negra no Brasil, decolonialidade" },
+      { professor: "Cloris Porto Torquato", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguística Aplicada", vagas: 2, subtemas: "Vozes contra-hegemônicas; Estudos Descoloniais; Relações Étnico-raciais; Estudos de Letramentos; Letramentos Acadêmicos; Políticas e Ideologias linguísticas; Ensino de Português para migrantes e refugiados." },
+      { professor: "Eliane Santos Raupp", dpto: "DEEL", temOrientando: true, orientandos: "Denise de Cássia Baumann - TCVB", precisa: "Sim", areas: "Linguística Aplicada, Escrita, texto, discurso", vagas: 1, subtemas: "Pretendo priorizar estudos que versem sobre a formação de sujeitos leitores e produtores de textos, bem como para a formação (inicial e continuada) de professores, focalizando as seguintes temáticas: Práticas de linguagem, em especial, a Prática de Análise Linguística articulada à prática de leitura e de escrita no ensino de língua portuguesa; Escrita autoral e ensino de língua portuguesa; Análise Dialógica do Discurso com base em Bakhtin, Volóchinov e Medviédev." },
+      { professor: "Eunice de Morais", dpto: "DEEL", temOrientando: true, orientandos: "Bárbara Aragão dos Santos Benini - 3º ano noturno", precisa: "Sim", areas: "Literatura Brasileira, Literatura Estrangeira", vagas: 1, subtemas: "Literatura e mulher; autoria feminina; literatura e memória." },
+      { professor: "Giuliano Lellis Ito Santos", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Brasileira, Literatura Estrangeira, Ensino de Lingua e Literatura, Literatura e outras artes", vagas: 1, subtemas: "Romance, teoria do romance, poesia, estética, romance do século XIX, literatura portuguesa, epistolografia, teoria marxista, teoria da história, narrativa histórica." },
+      { professor: "Jane Kelly de Oliveira", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Brasileira, Literatura Estrangeira, Literatura Clássica greco-romana e sua recepção na modernidade", vagas: 2, subtemas: "" },
+      { professor: "Joana d'Arc Martins Pupop", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Estrangeira, Lingua Estrangeira e Literaturas, Ensino de Lingua e Literatura, Crítica Literária Feminista - Teorias Feministas, Estudos de Gênero", vagas: 2, subtemas: "Crítica Literária Feminista - Teorias Feministas, Estudos de Gênero" },
+      { professor: "João Victor Chiquetto Silva", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguistica, Língua Espanhola", vagas: 4, subtemas: "Tenho interesse nos seguintes temas de pesquisa: sociofonética; fonética acústica; fonologia; sociolinguística; variação fonético-fonológica; atitudes linguísticas; ensino de língua portuguesa; ensino de língua estrangeira; pragmática; polidez." },
+      { professor: "José Wander de Paula", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Brasileira, Literatura Estrangeira, Ensino de Lingua e Literatura", vagas: 2, subtemas: "Literatura comparada, estudos literários em livros de Italo Calvino, metalinguagem, estética, performance, leitura em voz alta." },
+      { professor: "Joyce Cristina Souza", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Líbras, língua de sinais, surdidade", vagas: 2, subtemas: "Tenho interesse em orientar pesquisas articuladas às Ciências do Léxico, à Linguística de Corpus e à Educação de Surdos, contemplando temas como lexicografia, terminologia, documentação e descrição linguística da Libras, práticas de ensino e aprendizagem, formação de tradutores e intérpretes, diversidade linguística e cultural, relações étnico-raciais e interseccionalidades entre língua, identidade, raça e outros marcadores sociais." },
+      { professor: "Katherine Fischer", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguistica, Líbras, língua de sinais, surdidade", vagas: 2, subtemas: "Linguística, Línguas de Sinais, Língua Brasileira de Sinais (Libras), Descrição e Análise Linguística (fonética, fonologia, morfologia, sintaxe, semântica), Estudos sobre a Iconicidade, Sociolinguística, Linguística Cognitiva, Lexicologia e Terminologia, Onomástica." },
+      { professor: "Leticia Fraga", dpto: "DEEL", temOrientando: true, orientandos: "Solange Moro - vespertino", precisa: "Sim", areas: "Linguística Aplicada, Língua e cultura indígena, Formação de docentes", vagas: 1, subtemas: "Pluralidade/diversidade linguística em contextos indígenas; ensino de língua e políticas linguísticas em contextos indígenas; formação inicial e continuada de professores indígenas; educação (escolar) indígena; literatura indígena contemporânea." },
+      { professor: "Marco Aurélio de Souza", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Brasileira, Ensino de Lingua e Literatura", vagas: 2, subtemas: "" },
+      { professor: "Pâmela Cristina Pereira Gonzaga", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Líbras, língua de sinais, surdidade", vagas: 2, subtemas: "Bilinguismo e Pedagogia Visual." },
+      { professor: "Pascoalina Bailon de Oliveira Saleh", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguistica, Linguística Aplicada, Ensino de Lingua e Literatura, Escrita, texto, discurso", vagas: 2, subtemas: "Prioridade para temas envolvendo a escrita" },
+      { professor: "Paulo Rogério de Almeida", dpto: "DEEL", temOrientando: true, orientandos: "Mirela da Silva. RA:24025059. Noturno. Turma NA.", precisa: "Sim", areas: "Ensino de Lingua e Literatura", vagas: 2, subtemas: "Gramática Normativa e/ou Gramática e Ensino" },
+      { professor: "Rosana Apolonia Harmuch", dpto: "DEEL", temOrientando: true, orientandos: "Tamara Taísa Bell vespertino", precisa: "Sim", areas: "Literatura Brasileira, Ensino de Lingua e Literatura", vagas: 1, subtemas: "" },
+      { professor: "Rosita Maria Bastos dos Santos", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguistica, Ensino de Lingua e Literatura, Escrita, texto, discurso", vagas: 1, subtemas: "Posso orientar trabalhos na modalidade artigo e memorial acadêmico. Preferência para trabalhos que queiram fazer análises discursivas e/ou com foco na leitura: (processos de interpretação, compreensão, leitura crítica, fake news ou análise da prática de leitura em documentos como BNCC, CREPE, RCEM)." },
+      { professor: "Shehrazad Elis Ramos Daoud Prust", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguistica, Ensino de Lingua e Literatura", vagas: 2, subtemas: "Teoria gramatical; sintaxe/interfaces; ensino de gramática; ensino de língua portuguesa; interfaces da linguística; linguística comparativa; língua e humor" },
+      { professor: "Silvana Oliveira", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Brasileira, Literatura Estrangeira, Ensino de Lingua e Literatura, Cinema, literatura comparada", vagas: 2, subtemas: "Literatura e Filosofia" },
+      { professor: "Thiago Alexandre Correa", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Linguística Aplicada, Literatura Brasileira, Literatura Estrangeira, Lingua Estrangeira e Literaturas, Ensino de Lingua e Literatura, Língua e cultura indígena, Literaturas em língua espanhola", vagas: 2, subtemas: "Literaturas em língua portuguesa e espanhola | literatura e outras artes | literaturas indígenas | estudos ecocríticos | ensino-aprendizagem de espanhol como língua adicional | estudos decoloniais | linguagens e vozes contra-hegemônicas" },
+      { professor: "Vinícius Heitor Pereira", dpto: "DEEL", temOrientando: true, orientandos: "LETICIA WROBEL DOS SANTOS", precisa: "Sim", areas: "Líbras, língua de sinais, surdidade", vagas: 1, subtemas: "" },
+      { professor: "Yohana Gonçalves Bonfim", dpto: "DEEL", temOrientando: false, orientandos: "", precisa: "Sim", areas: "Literatura Estrangeira, Ensino de Lingua e Literatura", vagas: 2, subtemas: "Literatura em Língua Inglesa, mais especificamente obras utópicas/distópicas; Ensino de Língua Inglesa" }
+    ];
+
+    // Estado Global
+    let professoresData = [];
+    let currentView = 'cards';
+
+    // =========================================================================
+    // NORMALIZAÇÃO E LEITURA DA PLANILHA
+    // =========================================================================
+    function normalizeText(str) {
+      return (str || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function escapeHTML(str) {
+      if (!str) return "";
+      return str
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Quebra múltiplos orientandos separados por quebra de linha ou ponto e vírgula
+    function parseOrientandosList(raw) {
+      if (!raw) return [];
+      return raw
+        .toString()
+        .split(/[\r\n;]+/)
+        .map(item => item.trim())
+        .filter(item => item.length > 0 && item !== "-" && item.toLowerCase() !== "não" && item.toLowerCase() !== "nao");
+    }
+
+    function formatAreas(areasStr) {
+      if (!areasStr) return [];
+      return areasStr
+        .split(",")
+        .map(a => a.trim())
+        .filter(Boolean);
+    }
+
+    // Mapeia uma linha da planilha usando os cabeçalhos exatos fornecidos
+    function mapSheetRow(row) {
+      // Busca flexível pelos cabeçalhos (ignorando espaços acidentais)
+      const getCol = (keyName) => {
+        const foundKey = Object.keys(row).find(k => k.trim().toUpperCase() === keyName);
+        return foundKey ? (row[foundKey] || "").toString().trim() : "";
+      };
+
+      const professor = getCol("PROFESSOR");
+      if (!professor) return null; // Ignora linhas em branco
+
+      const dpto = getCol("DPTO") || "DEEL";
+      const temOrientandoRaw = normalizeText(getCol("TEM_ORIENTANDO"));
+      const orientandos = getCol("ORIETANDOS") || getCol("ORIENTANDOS"); // Suporta ambos caso mude depois
+      const precisa = getCol("PRECISA_ORIENTANDOS");
+      const areas = getCol("AREAS_INTERESSE");
+      const vagasRaw = parseInt(getCol("VAGAS"), 10);
+      const vagas = isNaN(vagasRaw) ? 0 : vagasRaw;
+      const subtemas = getCol("SUBTEMAS");
+
+      const temOrientando = temOrientandoRaw.startsWith("sim") || parseOrientandosList(orientandos).length > 0;
+
+      return {
+        professor,
+        dpto,
+        temOrientando,
+        orientandos,
+        precisa,
+        areas,
+        vagas,
+        subtemas
+      };
+    }
+
+    function updateSyncStatus(status, message) {
+      const dot = document.getElementById("syncDot");
+      const text = document.getElementById("syncText");
+      const banner = document.getElementById("fallbackBanner");
+
+      if (status === "loading") {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+        text.textContent = message || "Sincronizando...";
+      } else if (status === "success") {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        text.textContent = message || "Planilha sincronizada";
+        banner.classList.add("hidden");
+      } else if (status === "fallback") {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        text.textContent = "Modo Offline (Backup)";
+        banner.classList.remove("hidden");
+      }
+    }
+
+    function fetchSheetData(isManual = false) {
+      const refreshIcon = document.getElementById("refreshIcon");
+      if (isManual && refreshIcon) {
+        refreshIcon.classList.add("animate-spin");
+      }
+      updateSyncStatus("loading", "Atualizando dados...");
+
+      // Adiciona timestamp para evitar cache antigo do navegador
+      const urlNoCache = `${SHEET_CSV_URL}&_t=${Date.now()}`;
+
+      Papa.parse(urlNoCache, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+          if (refreshIcon) refreshIcon.classList.remove("animate-spin");
+
+          if (results && results.data && results.data.length > 0) {
+            const parsed = results.data
+              .map(mapSheetRow)
+              .filter(item => item !== null)
+              .sort((a, b) => a.professor.localeCompare(b.professor, 'pt-BR'));
+
+            if (parsed.length > 0) {
+              professoresData = parsed;
+              const now = new Date();
+              const hora = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+              updateSyncStatus("success", `Sincronizado às ${hora}`);
+              initializeUI();
+              return;
+            }
+          }
+
+          // Se vier vazio, usa fallback
+          useFallbackData();
+        },
+        error: function (err) {
+          if (refreshIcon) refreshIcon.classList.remove("animate-spin");
+          console.warn("Erro ao carregar CSV do Google Sheets:", err);
+          useFallbackData();
+        }
+      });
+    }
+
+    function useFallbackData() {
+      professoresData = [...FALLBACK_DATA].sort((a, b) => a.professor.localeCompare(b.professor, 'pt-BR'));
+      updateSyncStatus("fallback");
+      initializeUI();
+    }
+
+    // =========================================================================
+    // RENDERIZAÇÃO E INTERATIVIDADE
+    // =========================================================================
+    function initializeUI() {
+      document.getElementById("loadingState").classList.add("hidden");
+
+      const totalDocs = professoresData.length;
+      const totalVagas = professoresData.reduce((acc, p) => acc + (p.vagas || 0), 0);
+      const comOrientando = professoresData.filter(p => p.temOrientando).length;
+
+      document.getElementById("kpiTotalDocs").textContent = totalDocs;
+      document.getElementById("kpiTotalVagas").textContent = totalVagas;
+      document.getElementById("kpiComOrientando").textContent = comOrientando;
+      document.getElementById("badgeOrientandosCount").textContent = comOrientando;
+
+      renderOrientandosModal();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const searchRaw = document.getElementById("searchInput").value;
+      const searchNorm = normalizeText(searchRaw);
+      const areaFilter = normalizeText(document.getElementById("areaSelect").value);
+      const vinculoFilter = document.getElementById("vinculoSelect").value;
+
+      const clearBtn = document.getElementById("clearSearchBtn");
+      if (searchRaw.length > 0) {
+        clearBtn.classList.remove("hidden");
+      } else {
+        clearBtn.classList.add("hidden");
+      }
+
+      const filtered = professoresData.filter(p => {
+        if (vinculoFilter === "SEM" && p.temOrientando) return false;
+        if (vinculoFilter === "COM" && !p.temOrientando) return false;
+
+        if (areaFilter !== "all") {
+          const areasNorm = normalizeText(p.areas);
+          const subtemasNorm = normalizeText(p.subtemas);
+          if (areaFilter === "libras") {
+            if (!areasNorm.includes("libras") && !areasNorm.includes("sinais")) return false;
+          } else if (areaFilter === "feminista") {
+            if (!areasNorm.includes("feminista") && !areasNorm.includes("genero") && !subtemasNorm.includes("feminista")) return false;
+          } else if (areaFilter === "indigena") {
+            if (!areasNorm.includes("indigena") && !subtemasNorm.includes("indigena")) return false;
+          } else {
+            if (!areasNorm.includes(areaFilter)) return false;
+          }
+        }
+
+        if (searchNorm.length > 0) {
+          const searchableBlob = normalizeText(
+            `${p.professor} ${p.areas} ${p.subtemas} ${p.orientandos}`
+          );
+          if (!searchableBlob.includes(searchNorm)) return false;
+        }
+
+        return true;
+      });
+
+      const filteredVagas = filtered.reduce((acc, p) => acc + (p.vagas || 0), 0);
+      document.getElementById("kpiFilteredVagas").textContent = `${filteredVagas} ${filteredVagas === 1 ? 'vaga' : 'vagas'}`;
+      document.getElementById("kpiFilteredDocs").textContent = `em ${filtered.length} ${filtered.length === 1 ? 'docente' : 'docentes'}`;
+
+      renderResults(filtered);
+    }
+
+    function renderOrientandosHTML(rawOrientandos) {
+      const list = parseOrientandosList(rawOrientandos);
+      if (list.length === 0) return "";
+      if (list.length === 1) {
+        return `<span class="text-slate-700 font-medium">${escapeHTML(list[0])}</span>`;
+      }
+      return `<ul class="mt-1 space-y-1 list-disc list-inside text-slate-700 font-medium">
+        ${list.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+      </ul>`;
+    }
+
+    function renderResults(list) {
+      const cardsContainer = document.getElementById("cardsContainer");
+      const tableContainer = document.getElementById("tableContainer");
+      const emptyState = document.getElementById("emptyState");
+
+      if (list.length === 0) {
+        cardsContainer.classList.add("hidden");
+        tableContainer.classList.add("hidden");
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      if (currentView === 'cards') {
+        tableContainer.classList.add("hidden");
+        cardsContainer.classList.remove("hidden");
+        renderCards(list);
+      } else {
+        cardsContainer.classList.add("hidden");
+        tableContainer.classList.remove("hidden");
+        renderTable(list);
+      }
+
+      lucide.createIcons();
+    }
+
+    function renderCards(list) {
+      const container = document.getElementById("cardsContainer");
+      container.innerHTML = list.map(p => {
+        const areasList = formatAreas(p.areas);
+        const hasSubtemas = p.subtemas && p.subtemas.trim().length > 0;
+
+        return `
+          <article class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-300 transition flex flex-col justify-between p-5 print-break-inside fade-in">
+            <div>
+              <!-- Topo do Card -->
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <span class="text-[11px] font-bold uppercase tracking-wider text-brand-600">${escapeHTML(p.dpto)}</span>
+                  <h2 class="font-serif text-base font-bold text-slate-900 leading-snug mt-0.5">
+                    ${escapeHTML(p.professor)}
+                  </h2>
+                </div>
+                <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${p.vagas > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                  ${p.vagas} ${p.vagas === 1 ? 'vaga' : 'vagas'}
+                </span>
+              </div>
+
+              <!-- Tags de Áreas -->
+              <div class="flex flex-wrap gap-1.5 mb-4">
+                ${areasList.map(area => `
+                  <span class="px-2 py-0.5 text-[11px] font-medium rounded-md bg-brand-50 text-brand-800 border border-brand-100">
+                    ${escapeHTML(area)}
+                  </span>
+                `).join('')}
+              </div>
+
+              <!-- Subtemas / Especificidades -->
+              <div class="mb-4">
+                <h3 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Subtemas & Especificidades
+                </h3>
+                ${hasSubtemas
+            ? `<p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">${escapeHTML(p.subtemas)}</p>`
+            : `<p class="text-xs italic text-slate-400">Aberto a propostas dentro das áreas selecionadas.</p>`
+          }
+              </div>
+            </div>
+
+            <!-- Rodapé do Card -->
+            <div class="pt-3 border-t border-slate-100 flex items-start justify-between gap-2 text-xs">
+              ${p.temOrientando
+            ? `<div class="flex items-start gap-1.5 text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-lg w-full">
+                    <i data-lucide="user-check" class="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600"></i>
+                    <div class="leading-tight">
+                      <span class="font-semibold">Já orienta:</span> ${renderOrientandosHTML(p.orientandos)}
+                    </div>
+                  </div>`
+            : `<div class="flex items-center gap-1.5 text-slate-500">
+                    <i data-lucide="circle-dot" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>Sem orientando prévio para 2027</span>
+                  </div>`
+          }
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = list.map(p => {
+        const hasSubtemas = p.subtemas && p.subtemas.trim().length > 0;
+        const orientandosList = parseOrientandosList(p.orientandos);
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition fade-in">
+            <td class="py-3.5 px-4 align-top font-semibold text-slate-900 min-w-[200px]">
+              ${escapeHTML(p.professor)}
+              <div class="text-[11px] font-normal text-slate-400 mt-0.5">${escapeHTML(p.dpto)}</div>
+            </td>
+            <td class="py-3.5 px-4 align-top text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${p.vagas > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">
+                ${p.vagas}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 align-top text-xs text-slate-700 min-w-[210px]">
+              ${escapeHTML(p.areas)}
+            </td>
+            <td class="py-3.5 px-4 align-top text-xs text-slate-600 max-w-md leading-relaxed whitespace-pre-line">
+              ${hasSubtemas ? escapeHTML(p.subtemas) : '<span class="italic text-slate-400">—</span>'}
+            </td>
+            <td class="py-3.5 px-4 align-top text-xs min-w-[190px]">
+              ${p.temOrientando
+            ? `<span class="inline-block px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium mb-1">Sim</span>
+                   <div class="text-slate-600 leading-snug">${orientandosList.map(o => escapeHTML(o)).join('<br>')}</div>`
+            : `<span class="text-slate-400">Não</span>`
+          }
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderOrientandosModal() {
+      const container = document.getElementById("orientandosModalList");
+      const comOrientandos = professoresData.filter(p => p.temOrientando);
+
+      if (comOrientandos.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-500 italic">Nenhum docente informou orientandos vinculados até o momento.</p>`;
+        return;
+      }
+
+      container.innerHTML = comOrientandos.map(p => {
+        const orientandosList = parseOrientandosList(p.orientandos);
+        return `
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+            <div>
+              <div class="font-semibold text-sm text-slate-900">${escapeHTML(p.professor)}</div>
+              <div class="text-xs text-slate-600 mt-1 flex items-start gap-1.5">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-brand-600 shrink-0 mt-0.5"></i>
+                <div>
+                  ${orientandosList.length > 0
+            ? orientandosList.map(o => `<div class="font-medium text-slate-800">${escapeHTML(o)}</div>`).join('')
+            : `<span class="italic text-slate-500">Informou possuir orientando (nome não detalhado)</span>`
+          }
+                </div>
+              </div>
+            </div>
+            <span class="shrink-0 self-start px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              +${p.vagas} ${p.vagas === 1 ? 'vaga extra' : 'vagas extras'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setViewMode(mode) {
+      currentView = mode;
+      const btnCards = document.getElementById("btnViewCards");
+      const btnTable = document.getElementById("btnViewTable");
+
+      if (mode === 'cards') {
+        btnCards.className = "p-1.5 rounded-md bg-white text-brand-800 shadow-sm transition cursor-pointer";
+        btnTable.className = "p-1.5 rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer";
+      } else {
+        btnTable.className = "p-1.5 rounded-md bg-white text-brand-800 shadow-sm transition cursor-pointer";
+        btnCards.className = "p-1.5 rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer";
+      }
+
+      applyFilters();
+    }
+
+    function quickFilter(term) {
+      document.getElementById("searchInput").value = term;
+      document.getElementById("areaSelect").value = "ALL";
+      document.getElementById("vinculoSelect").value = "ALL";
+      applyFilters();
+    }
+
+    function clearSearch() {
+      document.getElementById("searchInput").value = "";
+      applyFilters();
+    }
+
+    function resetAllFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("areaSelect").value = "ALL";
+      document.getElementById("vinculoSelect").value = "ALL";
+      applyFilters();
+    }
+
+    function openOrientandosModal() {
+      document.getElementById("orientandosModal").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeOrientandosModal() {
+      document.getElementById("orientandosModal").classList.add("hidden");
+    }
+
+    document.getElementById("orientandosModal").addEventListener("click", function (e) {
+      if (e.target === this) closeOrientandosModal();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeOrientandosModal();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", applyFilters);
+    document.getElementById("areaSelect").addEventListener("change", applyFilters);
+    document.getElementById("vinculoSelect").addEventListener("change", applyFilters);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      fetchSheetData();
+    });
+  </script>
+</body>
+
+</html>

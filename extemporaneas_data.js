@@ -157,7 +157,7 @@ window.EXTEMPORANEAS_DATA = [
       "Lucimar Araujo Braga",
       "Marina Zavadzki"
     ],
-    "hibrida": false
+    "hibrida": true
   },
   {
     "id": 9,
